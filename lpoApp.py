@@ -13,6 +13,7 @@ __version__ = '0.0.1'
 class LpoApp:
 
     def __init__(self, master):
+
         self.master = master
         self._createGUI()
         self.database = lpoDB.LpoDB()
@@ -143,7 +144,7 @@ class LpoApp:
         if data != []:
 
             # the lists will hold all values from date range for each weather parameter
-            dict_of_lists = dict(Air_Temp = [], Barometric_Press = [], Wind_Speed = [])
+            dict_of_lists = dict(Air_Temp=[], Barometric_Press=[], Wind_Speed=[])
 
             for entry in data:
                 for key in dict_of_lists.keys():
