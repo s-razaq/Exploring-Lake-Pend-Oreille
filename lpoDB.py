@@ -22,14 +22,6 @@ class LpoDB():
                         Air_Temp FLOAT, Barometric_Press FLOAT,
                         Wind_Speed FLOAT)'''.format(self.table))
 
-    def __iter__(self):
-        """
-        Return generator object with dicts of entire DB contents
-        """
-        cursor = self.db.execute('SELECT * FROM {} ORDER BY Date, Time'.format(self.table))
-        for row in cursor:
-            yield dict(row)
-
     def clear(self):
         """
         Clears out the database by dropping the current table
@@ -77,13 +69,13 @@ class LpoDB():
 
         statuses = list(self._get_status_for_range(temp_start, end))
 
-        #remove all dates from dates_to_update that have a completed or partial status
+        # remove all dates from dates_to_update that have a completed or partial status
         for entry in statuses:
             if entry['Status'] == 'COMPLETE':
                 dates_to_update.remove(datetime.strptime(str(entry['Date']), '%Y-%m-%d').date())
             elif entry['Status'] == 'PARTIAL':
                 try: # update for any new data first, then remove from dates_to_update list
-                    self._update_for_date(datetime.strptime(str(entry['Date']), '%Y-%m-%d').date())
+                    self._update_data_for_data(datetime.strptime(str(entry['Date']), '%Y-%m-%d').date())
                 except:
                     raise
                 dates_to_update.remove(datetime.strptime(str(entry['Date']), '%Y-%m-%d').date())
@@ -92,7 +84,7 @@ class LpoDB():
         for day in dates_to_update:
             try:
                 self._update_data_for_data(day, False)
-            except Exception as e:
+            except ValueError as e:
                 error_dates.append(e)
 
         if error_dates != []:
