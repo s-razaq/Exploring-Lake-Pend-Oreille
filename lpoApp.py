@@ -1,4 +1,4 @@
-__author__ = 'D053380'
+__author__ = 'Saqib Razaq'
 
 from Tkinter import *
 from ttk import *
