@@ -80,13 +80,13 @@ class LpoDB():
         #remove all dates from dates_to_update that have a completed or partial status
         for entry in statuses:
             if entry['Status'] == 'COMPLETE':
-                dates_to_update.remove(datetime.strptime(str(entry['Date']), '%Y%m%d').date())
+                dates_to_update.remove(datetime.strptime(str(entry['Date']), '%Y-%m-%d').date())
             elif entry['Status'] == 'PARTIAL':
                 try: # update for any new data first, then remove from dates_to_update list
-                    self._update_for_date(datetime.strptime(str(entry['Date']), '%Y%m%d').date())
+                    self._update_for_date(datetime.strptime(str(entry['Date']), '%Y-%m-%d').date())
                 except:
                     raise
-                dates_to_update.remove(datetime.strptime(str(entry['Date']), '%Y%m%d').date())
+                dates_to_update.remove(datetime.strptime(str(entry['Date']), '%Y-%m-%d').date())
 
         error_dates = []
         for day in dates_to_update:
@@ -103,9 +103,9 @@ class LpoDB():
 
         # get Air_Temp, Barometric_Press, and Wind_Speed data from specified start/end date range
         cursor = self.db.execute('''SELECT Air_Temp, Barometric_Press, Wind_Speed
-                                    FROM {} WHERE Date BETWEEN {} AND {}'''.format(self.table,
-                                                                                   start.strftime('%Y%m%d'),
-                                                                                   end.strftime('%Y%m%d')))
+                                    FROM {} WHERE Date BETWEEN "{}" AND "{}"'''.format(self.table,
+                                                                                   start.strftime('%Y-%m-%d'),
+                                                                                   end.strftime('%Y-%m-%d')))
 
         for row in cursor:
             yield dict(row)
@@ -121,9 +121,9 @@ class LpoDB():
 
         # get Dates/Statuses that already exist in DB
         cursor = self.db.execute('''SELECT DISTINCT Date, Status FROM {}
-                                 WHERE Date BETWEEN {} and {}'''.format(self.table,
-                                                                        start.strftime('%Y%m%d'),
-                                                                        end.strftime('%Y%m%d')))
+                                 WHERE Date BETWEEN "{}" and "{}"'''.format(self.table,
+                                                                        start.strftime('%Y-%m-%d'),
+                                                                        end.strftime('%Y-%m-%d')))
 
         for row in cursor:
             yield dict(row)
@@ -140,7 +140,7 @@ class LpoDB():
 
         # clear out any partial data for this entry
         if partial:
-            self.db.execute('DELETE FROM {} WHERE Date={}'.format(self.table, date.strftime('%Y%m%d')))
+            self.db.execute('DELETE FROM {} WHERE Date="{}"'.format(self.table, date.strftime('%Y-%m-%d')))
             self.db.commit()
 
         try:
