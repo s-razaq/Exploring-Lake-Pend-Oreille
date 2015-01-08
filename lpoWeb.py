@@ -1,6 +1,5 @@
 __author__ = 'Saqib Razaq'
 
-from datetime import date
 from urllib2 import urlopen
 
 __version__ = '0.0.1'
@@ -9,6 +8,12 @@ BASE_URL = 'http://lpo.dt.navy.mil/data/DM/'
 
 
 def get_data_for_date(date):
+    """
+    Returns an generator object of data for the specified date.
+    Output data is formatted as a dict.
+    :param date:
+    :return:
+    """
 
     # use correct accessor method based on date
     if date.year < 2007:
@@ -18,6 +23,14 @@ def get_data_for_date(date):
 
 
 def _get_data_pre2007(date):
+    """
+    Access the LPO website to retrieve data for the specified date.
+    For dates from 2002 to 2006, data is downloaded for the full year.
+    The method operates as a generator object containing dictionaries
+    with result data.
+    :param date:
+    :return:
+    """
 
     # build the url based on year
     url = '{}/Environmental_Data_{}.txt'.format(BASE_URL, date.year)
@@ -37,11 +50,19 @@ def _get_data_pre2007(date):
                    Time=elements[1],
                    Status='COMPLETE',
                    Air_Temp=elements[5],
-                   BarometricPress=elements[7],
+                   Barometric_Press=elements[7],
                    Wind_Speed=elements[2])
 
 
 def _get_data_post2006(date):
+    """
+    Access the LPO website to retrieve data for the specified date.
+    For dates after 2006, data is downloaded by individual days.
+    The method operates as a generator object containing dictionaries
+    with result data.
+    :param date:
+    :return:
+    """
 
     # build the url based on date & create data container
     url = '{}/{}/{}'.format(BASE_URL, date.year, str(date).replace('-', '_'))
@@ -51,7 +72,7 @@ def _get_data_post2006(date):
     for key in data.keys():
         try:
             data[key] = urlopen('{}/{}'.format(url, key)).read().decode(encoding='utf_8').split('\n')
-        except Exception as e:
+        except:
             raise ValueError(date)
         else:
             data[key].pop() # remove last item which will be an empty string
@@ -79,10 +100,3 @@ def _get_data_post2006(date):
                    Barometric_Press=data['Barometric_Press'][i].split()[2],
                    Wind_Speed=data['Wind_Speed'][i].split()[2])
 
-
-def test():
-    pass
-
-
-if __name__ == '__main__':
-    test()
